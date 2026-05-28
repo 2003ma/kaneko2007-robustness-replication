@@ -1,3 +1,7 @@
 venv/
 *.csv
 .DS_Store
+sims/evo_sim/bin/
+sims/evolved_J_evaluation/src/calc_all_J_x/bin/
+sims/evolved_J_evaluation/src/calc_all_J_x_noise/bin/
+*.o
