@@ -6,6 +6,8 @@ Evaluate the fitness of all evolved individuals under varying levels of simulati
 
 This program evaluates the gene expression dynamics robustness of evolved regulatory networks by simulating them under different noise conditions. For each individual in an evolved population (at a specified generation), it runs multiple trials of stochastic gene expression dynamics with increasing simulation noise levels, and records the fitness values.
 
+**Initial conditions**: The initial gene expression state is **fixed** and identical to that used during the evolutionary process. This ensures that variations in fitness outcomes across noise levels are due to the dynamics and robustness of the network, not to differences in initial conditions.
+
 This is used to assess how the robustness of evolved networks varies with the noise environment during evaluation.
 
 ## Source files

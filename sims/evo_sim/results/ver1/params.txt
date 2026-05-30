@@ -1,0 +1,10 @@
+Simulation Parameters for ver1
+================================
+Population size (pop): 300
+Number of trials (L): 300
+Measurement steps (meas): 2000
+Relaxation steps (relax): 16000
+Random seed: 123456789
+
+Variable parameter:
+- sigma: (varies)
