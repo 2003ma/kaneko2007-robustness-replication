@@ -89,6 +89,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--legend-outside",
+        default=True,
         action="store_true",
         help="Place legend outside the plot area.",
     )
