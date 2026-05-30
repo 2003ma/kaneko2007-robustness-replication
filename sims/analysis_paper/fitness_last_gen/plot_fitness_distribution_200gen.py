@@ -8,12 +8,20 @@ It supports two fixed x-range presets:
   - zoom: fitness in [-0.2, 0]
 
 Example:
-    ./plot_fitness_distribution_200gen.py \
+    python3 ./plot_fitness_distribution_200gen.py \
         --csv-a ../../evo_sim/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
         --csv-b ../../evo_sim/results/ver1/sigma_0.200/evo_sim_data/gen_200_all_J_sigma_0.200_dt0.005.csv \
         --labels sigma=0.005 sigma=0.200 \
         --preset wide \
         --output fitness_wide.pdf
+
+
+    python3 ./plot_fitness_distribution_200gen.py \
+        --csv-a ../../evo_sim/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
+        --csv-b ../../evo_sim/results/ver1/sigma_0.200/evo_sim_data/gen_200_all_J_sigma_0.200_dt0.005.csv \
+        --labels sigma=0.005 sigma=0.200 \
+        --preset zoom \
+        --output fitness_zoom.png
 """
 
 from __future__ import annotations
