@@ -5,7 +5,7 @@
 Example:
     python3 plot_best_by_sigma.py \
         --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
-        --sigmas 0.005 0.04 0.1 0.4 0.6 0.9 1.0 \
+        --sigmas 0.005 0.1 0.4 0.6 1.0 \
         --output best_overlay_bw.pdf
 """
 
@@ -206,73 +206,13 @@ def get_style_by_sigma(sigma: float) -> dict:
     """Return black-and-white line/marker style for each sigma."""
 
     style_by_sigma = {
-        0.005: {
-            "linestyle": "-",
-            # "marker": "o",
-            "mfc": "black",
-            "mec": "black",
-        },
-        0.01: {
-            "linestyle": "--",
-            # "marker": "s",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.04: {
-            "linestyle": "-.",
-            # "marker": "^",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.1: {
-            "linestyle": ":",
-            # "marker": "D",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.2: {
-            "linestyle": (0, (5, 1)),
-            # "marker": "v",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.4: {
-            "linestyle": (0, (3, 1, 1, 1)),
-            # "marker": "x",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.6: {
-            "linestyle": (0, (5, 1)),
-            # "marker": "s",
-            "mfc": "black",
-            "mec": "black",
-        },
-        0.7: {
-            "linestyle": (0, (1, 1)),
-            # "marker": "<",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.8: {
-            "linestyle": (0, (7, 2)),
-            # "marker": ">",
-            "mfc": "none",
-            "mec": "black",
-        },
-        0.9: {
-            "linestyle": (0,(7,2)),
-            # "marker": "+",
-            "mfc": "none",
-            "mec": "black",
-        },
-        1.0: {
-            "linestyle": (0,(1,1)),
-            # "marker": "*",
-            "mfc": "none",
-            "mec": "black",
-        },
+        0.005: {"linestyle": "-"},
+        0.1:  {"linestyle": "--"},
+        0.4:   {"linestyle": "-."},
+        0.6:   {"linestyle": ":"},
+        1.0:   {"linestyle": (0, (5, 1))},
     }
+    
 
     for key, style in style_by_sigma.items():
         if abs(sigma - key) <= 1e-12:
@@ -340,8 +280,8 @@ def main() -> int:
             # marker=style["marker"],
             linewidth=1.1,
             markersize=6.5,
-            markerfacecolor=style["mfc"],
-            markeredgecolor=style["mec"],
+            # markerfacecolor=style["mfc"],
+            # markeredgecolor=style["mec"],
             markeredgewidth=0.9,
             markevery=args.markevery,
             label=fr"$\sigma={sigma:g}$",
