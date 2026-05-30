@@ -92,6 +92,12 @@ def parse_args() -> argparse.Namespace:
         default=True,
         help="Place legend outside the plot area.",
     )
+    parser.add_argument(
+        "--color",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Use color in the plot. Use --no-color to force black lines.",
+    )
     return parser.parse_args()
 
 
@@ -251,6 +257,13 @@ def main() -> int:
 
     fig, ax = plt.subplots(figsize=(10, 7))
 
+    sigmas_sorted = [sigma for sigma, _ in sorted(selected, key=lambda x: x[0])]
+    palette = plt.get_cmap("tab10")
+    colors = {
+        sigma: palette(i % palette.N)
+        for i, sigma in enumerate(sigmas_sorted)
+    }
+
     for sigma, path in sorted(selected, key=lambda x: x[0]):
         try:
             df = pd.read_csv(path, usecols=["generation", "worst"])
@@ -261,11 +274,12 @@ def main() -> int:
             return 1
 
         style = style_for_sigma(sigma)
+        line_color = colors[sigma] if args.color else "black"
 
         ax.plot(
             df["generation"],
             df["worst"],
-            color="black",
+            color=line_color,
             linestyle=style["linestyle"],
             # marker=style["marker"],
             linewidth=0.8,

@@ -92,6 +92,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Place legend outside the plot area.",
     )
+    parser.add_argument(
+        "--color",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Use color in the plot. Use --color to enable colors and --no-color for black lines.",
+    )
 
     return parser.parse_args()
 
@@ -226,6 +232,14 @@ def get_style_by_sigma(sigma: float) -> dict:
     }
 
 
+def get_color_by_sigma(sigma: float, palette, sigmas_sorted: Sequence[float]):
+    if sigma not in sigmas_sorted:
+        return "black"
+
+    index = sigmas_sorted.index(sigma)
+    return palette(index % palette.N)
+
+
 def main() -> int:
     args = parse_args()
 
@@ -260,6 +274,8 @@ def main() -> int:
     setup_plot_style()
 
     fig, ax = plt.subplots(figsize=(10, 7))
+    sigmas_sorted = [sigma for sigma, _ in sorted(selected, key=lambda x: x[0])]
+    palette = plt.get_cmap("tab10")
 
     for sigma, path in sorted(selected, key=lambda x: x[0]):
         try:
@@ -271,11 +287,12 @@ def main() -> int:
             return 1
 
         style = get_style_by_sigma(sigma)
+        line_color = get_color_by_sigma(sigma, palette, sigmas_sorted) if args.color else "black"
 
         ax.plot(
             df["generation"],
             df["best"],
-            color="black",
+            color=line_color,
             linestyle=style["linestyle"],
             # marker=style["marker"],
             linewidth=1.1,
