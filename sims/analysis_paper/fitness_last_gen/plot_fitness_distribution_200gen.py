@@ -4,7 +4,7 @@
 
 The script plots histogram counts of the `fitness` column for two CSV files.
 It supports two fixed x-range presets:
-  - wide: fitness in [-2, 0]
+  - wide: fitness in [overall min, overall max]
   - zoom: fitness in [-0.2, 0]
 
 Example:
@@ -73,9 +73,7 @@ def import_plotting_modules():
     return plt, pd
 
 
-def resolve_xlim(preset: str) -> Tuple[float, float]:
-    if preset == "wide":
-        return -2.0, 0.0
+def resolve_xlim(preset: str) -> Tuple[float, float]: #zoom時のみ
     return -0.2, 0.0
 
 
