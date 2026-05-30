@@ -9,11 +9,11 @@ It supports two fixed x-range presets:
 
 Example:
     ./plot_fitness_distribution_200gen.py \
-        --csv-a ../../evo_sim_v6/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
-        --csv-b ../../evo_sim_v6/results/ver1/sigma_0.200/evo_sim_data/gen_200_all_J_sigma_0.200_dt0.005.csv \
+        --csv-a ../../evo_sim/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
+        --csv-b ../../evo_sim/results/ver1/sigma_0.200/evo_sim_data/gen_200_all_J_sigma_0.200_dt0.005.csv \
         --labels sigma=0.005 sigma=0.200 \
         --preset wide \
-        --output fitness_wide.png
+        --output fitness_wide.pdf
 """
 
 from __future__ import annotations
@@ -43,11 +43,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("fitness_distribution_overlay.png"),
+        default=Path("fitness_distribution_overlay.pdf"),
         help="Output image path",
     )
     parser.add_argument("--bins", type=int, default=80, help="Number of histogram bins")
-    parser.add_argument("--dpi", type=int, default=150, help="Output image DPI")
+    parser.add_argument("--dpi", type=int, default=300, help="Output image DPI")
     return parser.parse_args(argv)
 
 
@@ -117,7 +117,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         bins=bin_edges,
         histtype="step",
         linewidth=2.0,
-        color="#e41a1c",
+        color="black",
         label=args.labels[0],
     )
     ax.hist(
@@ -125,7 +125,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         bins=bin_edges,
         histtype="step",
         linewidth=2.0,
-        color="#4daf4a",
+        color="black",
         linestyle="--",
         label=args.labels[1],
     )
