@@ -22,7 +22,7 @@ SIGMA_FILE_PATTERN = re.compile(r"^data,sigma=([0-9]*\.?[0-9]+),.*\.csv$")
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Scatter plot of V_g vs Vip by sigma")
+    parser = argparse.ArgumentParser(description="Scatter plot of Vg vs Vip by sigma")
     parser.add_argument(
         "--input-dir",
         type=Path,
@@ -45,7 +45,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("vg_vip_scatter.png"),
+        default=Path("vg_vip_scatter.pdf"),
         help="Output image path",
     )
     parser.add_argument(
@@ -122,15 +122,25 @@ def resolve_axis_limits(
     kind: str,
 ) -> Tuple[float, float]:
     if kind == "x":
-        base_min, base_max = (1e-4, 1e-1) if preset == "paper" else (1e-4, 1e1)
+        base_min, base_max = (1e-3, 1e-1) if preset == "paper" else (1e-3, 1e1)
     else:
-        base_min, base_max = (1e-6, 1e-1) if preset == "paper" else (1e-6, 1e0)
+        base_min, base_max = (1e-5, 1e-1) if preset == "paper" else (1e-5, 1e0)
 
     if override_min is not None:
         base_min = override_min
     if override_max is not None:
         base_max = override_max
     return base_min, base_max
+
+def marker_for_sigma(sigma: float) -> str:
+    if sigma in {0.01, 0.04}:
+        return "o"   # small noise
+    elif sigma in {0.1, 0.2}:
+        return "^"   # medium noise
+    elif sigma in {0.3, 0.5}:
+        return "s"   # large noise
+    else:
+        return "o"
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -179,9 +189,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     fig, ax = plt.subplots(figsize=(8.5, 7.0))
     ax.set_xscale("log")
     ax.set_yscale("log")
+    cmap = plt.get_cmap("tab10")
+    small_noise = {0.01, 0.04}
+    medium_noise = {0.1, 0.2}
+    large_noise = {0.3, 0.5}
 
     for index, (sigma, path) in enumerate(selected):
+        color = cmap(index % 10)
         df = pd.read_csv(path, usecols=["Vip", "V_g"])
+        df = df.iloc[::4]
         df = df[(df["Vip"] > 0) & (df["V_g"] > 0)]
         if df.empty:
             print(f"[WARN] No positive Vip/V_g rows in {path}; skipping.", file=sys.stderr)
@@ -189,11 +205,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         ax.scatter(
             df["Vip"],
             df["V_g"],
-            s=10,
-            alpha=0.55,
-            color=cmap(index),
+            s=25,
+            alpha=0.8                                       ,
+            color=color,
+            # color="black",
             edgecolors="none",
             label=fr"$\sigma$={sigma:g}",
+            marker=marker_for_sigma(sigma),
         )
 
     x_min, x_max = resolve_axis_limits(args.preset, args.xlim_min, args.xlim_max, "x")
@@ -203,11 +221,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     line_min = max(x_min, y_min)
     line_max = min(x_max, y_max)
-    ax.plot([line_min, line_max], [line_min, line_max], color="black", linestyle="--", linewidth=1.0, alpha=0.8)
+    ax.plot([line_min, line_max], [line_min, line_max], color="black", linestyle="--", linewidth=1.0, alpha=1.0,label=r"$V_g = V_{ip}$",)
 
-    ax.set_title(args.title)
-    ax.set_xlabel("Vip")
-    ax.set_ylabel("Vg")
+    ax.set_xlabel(r"$V_{ip}$",fontsize=16)
+    ax.set_ylabel(r"$V_g$",fontsize=16)
     ax.grid(True, which="both", alpha=0.2)
     ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(1.02, 1.0))
 

@@ -3,17 +3,16 @@
 """Create an overview plot from data,sigma*.csv files. Fig.2
 
 This script creates two separated panels:
-- top panel: worst fitness averaged over generations 100-200
-- bottom panel: mean fitness averaged over generations 100-200 and
-    speed defined as 1 / first generation where best fitness becomes 0
+- top panel: mean and worst fitness averaged over generations 100-200
+- bottom panel: speed defined as 1 / first generation where best fitness becomes 0
 
 If best fitness does not become 0 by generation 200, the speed is 0.
 
 Example:
-    ./plot_overview_metrics_by_sigma.py \
+    python3 ./plot_overview_metrics_by_sigma.py \
         --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
-        --sigmas 0.005 0.01 0.04 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.9 1.0 \
-        --output overview_metrics_ver1.png
+        --sigmas 0.005 0.01 0.04 0.06 0.08 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.9 1.0 \
+        --output overview_metrics_ver1.pdf
 """
 
 from __future__ import annotations
@@ -222,70 +221,70 @@ def main() -> int:
         worst_values.append(worst_average)
         speed_values.append(speed)
 
-    fig, (ax_worst, ax_other) = plt.subplots(
+    fig, (ax_mean_worst, ax_speed) = plt.subplots(
         2,
         1,
-        figsize=(9, 8),
+        figsize=(9, 8.6),
         sharex=True,
-        gridspec_kw={"height_ratios": [1, 1.2]},
+        gridspec_kw={"height_ratios": [1.45, 1.0]},
     )
 
     # sigma は値の間隔が不均一なので、見やすさのため等間隔の x 座標に配置する
     x_positions = list(range(len(sigma_values)))
 
-    ax_worst.plot(
+    ax_mean_worst.plot(
+        x_positions,
+        mean_values,
+        color="#d62728",
+        marker="o",
+        linewidth=2.0,
+        label=f"Mean Fitness ({args.window_start}-{args.window_end})",
+    )
+    ax_mean_worst.plot(
         x_positions,
         worst_values,
         color="#2ca02c",
         marker="s",
         linestyle="--",
         linewidth=2.0,
-        label=f"worst avg ({args.window_start}-{args.window_end})",
+        label=f"Worst Fitness ({args.window_start}-{args.window_end})",
     )
 
-    ax_other.plot(
-        x_positions,
-        mean_values,
-        color="#d62728",
-        marker="o",
-        linewidth=2.0,
-        label=f"mean avg ({args.window_start}-{args.window_end})",
-    )
-    ax_other.plot(
+    ax_speed.plot(
         x_positions,
         speed_values,
         color="#1f77b4",
         marker="^",
         linestyle=":",
         linewidth=2.0,
-        label=f"1 / first zero gen (<= {args.zero_limit})",
+        label=f"1 / first generation reaching F=0",
     )
 
-    ax_other.set_xticks(x_positions)
-    ax_other.set_xticklabels([f"{sigma:g}" for sigma in sigma_values])
+    ax_speed.set_xticks(x_positions)
+    ax_speed.set_xticklabels([f"{sigma:g}" for sigma in sigma_values])
     if x_positions:
-        ax_other.set_xlim(-0.5, x_positions[-1] + 0.5)
+        ax_speed.set_xlim(-0.5, x_positions[-1] + 0.5)
 
-    ax_worst.axhline(0.0, color="black", linewidth=0.8, linestyle="--", alpha=0.5)
-    ax_other.axhline(0.0, color="black", linewidth=0.8, linestyle="--", alpha=0.5)
+    ax_mean_worst.axhline(0.0, color="black", linewidth=0.8, linestyle="--", alpha=0.5)
+    ax_speed.axhline(0.0, color="black", linewidth=0.8, linestyle="--", alpha=0.5)
 
-    ax_worst.set_title(args.title)
-    ax_worst.set_ylabel("worst avg")
-    ax_other.set_xlabel("noise strength σ")
-    ax_other.set_ylabel("mean avg / speed")
-    ax_other.set_ylim(-0.5, 0.5)
+    # ax_mean_worst.set_title(args.title)
+    ax_mean_worst.set_ylabel("Fitness averaged over generations 100–200")
+    ax_speed.set_xlabel("noise strength σ")
+    ax_speed.set_ylabel("1 / first generation reaching F=0")
+    ax_speed.set_ylim(-0.005, 0.13)
 
-    ax_worst.grid(True, which="both", alpha=0.25)
-    ax_other.grid(True, which="both", alpha=0.25)
-    ax_worst.legend(frameon=False)
-    ax_other.legend(frameon=False)
+    ax_mean_worst.grid(True, which="both", alpha=0.25)
+    ax_speed.grid(True, which="both", alpha=0.25)
+    ax_mean_worst.legend(frameon=False)
+    ax_speed.legend(frameon=False)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     fig.savefig(args.output, dpi=args.dpi)
 
     print(f"[OK] saved: {args.output}")
-    print("[OK] metrics plotted: worst avg (top), mean avg + speed (bottom)")
+    print("[OK] metrics plotted: mean+worst (top), speed only (bottom)")
     return 0
 
 
