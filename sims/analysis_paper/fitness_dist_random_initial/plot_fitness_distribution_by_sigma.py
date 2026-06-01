@@ -47,7 +47,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).resolve().parent / "fitness_distribution_overlay_by_sigma.png",
+        default=Path(__file__).resolve().parent / "fitness_distribution_overlay_by_sigma.pdf",
         help="Output image path",
     )
     parser.add_argument("--x-min", type=float, default=-8.1, help="x-axis minimum")
@@ -109,14 +109,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     fig, ax = plt.subplots(figsize=(9, 6))
     # Fixed-width bins so distributions are directly comparable across sigmas.
     bin_edges = np.arange(args.x_min, args.x_max + BIN_SIZE * 0.5, BIN_SIZE)
+    style_map = {
+        0.005: {"color": "tab:blue",   "linestyle": "-",  "linewidth": 2.4},
+        0.04:  {"color": "tab:orange", "linestyle": "--", "linewidth": 2.2},
+        0.1:   {"color": "tab:green",  "linestyle": ":",  "linewidth": 2.8},
+    }
+    style = style_map[sigma]
 
     for sigma in sorted(grouped.keys()):
+        style = style_map.get(
+            sigma,
+            {"linestyle": "-", "linewidth": 2.0},
+        )
         values = pd.concat(grouped[sigma], ignore_index=True)
         ax.hist(
             values,
             bins=bin_edges,
             histtype="step",
             linewidth=2.0,
+            linestyle=style["linestyle"],
+            color=style["color"],
             density=args.density,
             label=f"sigma={sigma:.3f}",
         )
@@ -124,7 +136,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     ax.set_xlim(args.x_min, args.x_max)
     ax.set_xlabel("fitness")
     ax.set_ylabel("density" if args.density else "count")
-    ax.set_title("Fitness distribution overlay by sigma")
+    # ax.set_title("Fitness distribution overlay by sigma")
     ax.grid(True, alpha=0.25)
     ax.legend(frameon=False, ncol=2)
 

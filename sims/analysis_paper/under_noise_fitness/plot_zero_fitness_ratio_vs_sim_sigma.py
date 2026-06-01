@@ -11,7 +11,7 @@ Each CSV filename should include evo_sigma, e.g.:
 Example:
     ./plot_zero_fitness_ratio_vs_sim_sigma.py \
       --input-dir . \
-      --output zero_ratio_overlay.png
+      --output under_noise_fitness.pdf
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("zero_fitness_ratio_vs_sim_sigma.png"),
+        default=Path("zero_fitness_ratio_vs_sim_sigma.pdf"),
         help="Output image path",
     )
     parser.add_argument(
@@ -91,7 +91,11 @@ def sigma_requested(sigma: float, requested: Sequence[float], tol: float = 1e-12
 
 
 def collect_zero_counts(csv_path: Path, zero_tol: float) -> Tuple[Dict[float, int], Dict[float, int]]:
-    df = pd.read_csv(csv_path)
+    try:
+        df = pd.read_csv(csv_path)
+    except pd.errors.EmptyDataError:
+        return {}, {}
+
     zero_counts: Dict[float, int] = {}
     total_counts: Dict[float, int] = {}
 
@@ -104,6 +108,9 @@ def collect_zero_counts(csv_path: Path, zero_tol: float) -> Tuple[Dict[float, in
         is_zero = values.abs() <= zero_tol
         zero_counts[sim_sigma] = int(is_zero.sum())
         total_counts[sim_sigma] = int(values.shape[0])
+
+    if not zero_counts:
+        return {}, {}
 
     return zero_counts, total_counts
 
@@ -137,14 +144,20 @@ def main() -> int:
         return 1
 
     plt.figure(figsize=(8, 6))
+    line_styles = ["-", "--", "-.", ":", (0, (5, 2)), (0, (3, 1, 1, 1))]
+    markers = ["o", "s", "^", "D", "v", "x"]
 
-    for evo_sigma in sorted(grouped.keys()):
+    for i, evo_sigma in enumerate(sorted(grouped.keys())):
         paths = grouped[evo_sigma]
         zero_sum: Dict[float, int] = {}
         total_sum: Dict[float, int] = {}
+        empty_or_invalid = 0
 
         for path in paths:
             zero_counts, total_counts = collect_zero_counts(path, args.zero_tol)
+            if not zero_counts:
+                empty_or_invalid += 1
+                continue
             for sim_sigma, zc in zero_counts.items():
                 zero_sum[sim_sigma] = zero_sum.get(sim_sigma, 0) + zc
                 total_sum[sim_sigma] = total_sum.get(sim_sigma, 0) + total_counts[sim_sigma]
@@ -152,14 +165,34 @@ def main() -> int:
         sim_sigmas = sorted(total_sum.keys())
         ratios = [zero_sum[s] / total_sum[s] if total_sum[s] > 0 else 0.0 for s in sim_sigmas]
 
-        plt.plot(sim_sigmas, ratios, marker="o", linewidth=2.0, label=fr"$\sigma_{{evo}}$={evo_sigma:g}")
+        plt.plot(
+            sim_sigmas,
+            ratios,
+            linestyle=line_styles[i % len(line_styles)],
+            marker=markers[i % len(markers)],
+            linewidth=2.0,
+            markersize=6,
+            label=fr"$\sigma_{{evo}}$={evo_sigma:g}",
+        )
 
-    plt.title(args.title)
-    plt.xlabel("simulation noise sigma")
-    plt.ylabel("ratio of fitness == 0")
+        if empty_or_invalid > 0:
+            print(
+                f"[WARN] skipped {empty_or_invalid} empty or invalid CSV file(s) for evo_sigma={evo_sigma:g}",
+                file=sys.stderr,
+            )
+
+    # plt.title(args.title)
+    plt.xlabel(r"Evaluation noise strength $\sigma_{\mathrm{sim}}$",fontsize=16)
+    plt.ylabel(r"Fraction of individuals with $F=0$",fontsize=16)
     plt.ylim(0.0, 1.0)
     plt.grid(True, alpha=0.25)
-    plt.legend(frameon=False)
+    plt.legend(
+        title=r"Evolution noise $\sigma_{\mathrm{evo}}$",
+        frameon=False,
+        loc="upper left",
+        bbox_to_anchor=(1.02, 1.0),
+        borderaxespad=0.0,
+    )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     plt.tight_layout()
