@@ -183,7 +183,7 @@ def main() -> int:
 
     # plt.title(args.title)
     plt.xlabel(r"Evaluation noise strength $\sigma_{\mathrm{sim}}$",fontsize=16)
-    plt.ylabel(r"Fraction of individuals with $F=0$",fontsize=16)
+    plt.ylabel(r"Fraction of individuals with $\bar{F}=0$",fontsize=16)
     plt.ylim(0.0, 1.0)
     plt.grid(True, alpha=0.25)
     plt.legend(
@@ -192,6 +192,7 @@ def main() -> int:
         loc="upper left",
         bbox_to_anchor=(1.02, 1.0),
         borderaxespad=0.0,
+        fontsize=15,
     )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)

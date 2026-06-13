@@ -47,7 +47,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).resolve().parent / "fitness_distribution_overlay_by_sigma.pdf",
+        default=Path(__file__).resolve().parent / "fitness_distribution.pdf",
         help="Output image path",
     )
     parser.add_argument("--x-min", type=float, default=-8.1, help="x-axis minimum")
@@ -134,11 +134,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
 
     ax.set_xlim(args.x_min, args.x_max)
-    ax.set_xlabel("fitness")
-    ax.set_ylabel("density" if args.density else "count")
+    ax.set_xlabel("Fitness", fontsize=15)
+    ax.set_ylabel("Density" if args.density else "count", fontsize=15)
     # ax.set_title("Fitness distribution overlay by sigma")
     ax.grid(True, alpha=0.25)
-    ax.legend(frameon=False, ncol=2)
+    ax.legend(frameon=False, ncol=2,fontsize=15)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()

@@ -6,7 +6,7 @@ Example:
     python3 plot_best_by_sigma.py \
         --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
         --sigmas 0.005 0.1 0.4 0.6 1.0 \
-        --output best_overlay_bw.pdf
+        --output best_fitness.pdf
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("best_vs_generation_overlay_bw.pdf"),
+        default=Path("best_fitness.pdf"),
         help="Output image path. PDF is recommended for papers.",
     )
     parser.add_argument(
@@ -187,7 +187,7 @@ def setup_plot_style() -> None:
             "font.size": 16,
             "axes.labelsize": 20,
             "axes.titlesize": 18,
-            "legend.fontsize": 15,
+            "legend.fontsize": 20,
             "xtick.labelsize": 16,
             "ytick.labelsize": 16,
 
@@ -296,7 +296,7 @@ def main() -> int:
             color=line_color,
             linestyle=style["linestyle"],
             # marker=style["marker"],
-            linewidth=1.1,
+            linewidth=2.5,
             markersize=6.5,
             # markerfacecolor=style["mfc"],
             # markeredgecolor=style["mec"],
@@ -309,7 +309,7 @@ def main() -> int:
         ax.set_title(args.title)
 
     ax.set_xlabel("Generation")
-    ax.set_ylabel("Best fitness")
+    ax.set_ylabel(r"Top Fitness",fontsize=20)
 
     # Paper-like style: no grid
     ax.grid(False)

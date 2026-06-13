@@ -6,7 +6,7 @@ Example:
     python3 plot_worst_by_sigma.py \
         --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
         --sigmas 0.005 0.1 0.4 0.6 1.0 \
-        --output worst_overlay_bw.pdf
+        --output worst_fitness.pdf
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("worst_vs_generation_overlay.png"),
+        default=Path("worst_fitness.pdf"),
         help="Output image path",
     )
     parser.add_argument(
@@ -182,7 +182,7 @@ def setup_plot_style() -> None:
             "font.size": 18,
             "axes.labelsize": 22,
             "axes.titlesize": 18,
-            "legend.fontsize": 16,
+            "legend.fontsize": 20,
             "xtick.labelsize": 18,
             "ytick.labelsize": 18,
             "axes.linewidth": 0.8,
@@ -282,7 +282,7 @@ def main() -> int:
             color=line_color,
             linestyle=style["linestyle"],
             # marker=style["marker"],
-            linewidth=0.8,
+            linewidth=2.5,
             markersize=7,
             # markerfacecolor=style["mfc"],
             # markeredgecolor=style["mec"],
@@ -295,7 +295,7 @@ def main() -> int:
         ax.set_title(args.title)
 
     ax.set_xlabel("Generation")
-    ax.set_ylabel("Worst fitness")
+    ax.set_ylabel(r"Worst Ftiness",fontsize=20)
     ax.grid(False)
 
     if args.legend_outside:

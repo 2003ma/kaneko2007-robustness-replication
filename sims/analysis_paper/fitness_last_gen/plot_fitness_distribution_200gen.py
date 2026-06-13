@@ -174,8 +174,8 @@ Example:
         --csv-a ../../evo_sim/results/ver1/sigma_0.200/evo_sim_data/gen_200_all_J_sigma_0.200_dt0.005.csv \
         --csv-b ../../evo_sim/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
         --labels "sigma=0.200" "sigma=0.005" \
-        --preset inset \
-        --output fitness_inset.pdf
+        --preset wide \
+        --output fitness_wide.pdf
 """
 
 from __future__ import annotations
@@ -264,11 +264,11 @@ def setup_plot_style(plt) -> None:
     plt.rcParams.update(
         {
             "font.family": "sans-serif",
-            "font.size": 20,
-            "axes.labelsize": 24,
-            "xtick.labelsize": 20,
-            "ytick.labelsize": 20,
-            "legend.fontsize": 20,
+            "font.size": 15,
+            "axes.labelsize": 15,
+            "xtick.labelsize": 15,
+            "ytick.labelsize": 15,
+            "legend.fontsize": 15,
             "axes.linewidth": 1.2,
             "xtick.direction": "in",
             "ytick.direction": "in",
@@ -383,8 +383,8 @@ def decorate_axis(ax, xlim: Tuple[float, float], *, show_legend: bool = True) ->
     ax.set_xlim(*xlim)
     ax.set_yscale("symlog", linthresh=1)
     ax.set_ylim(bottom=0)
-    ax.set_xlabel("Fitness")
-    ax.set_ylabel("Distribution")
+    ax.set_xlabel("Fitness",fontsize=15)
+    ax.set_ylabel("Distribution",fontsize=15)
     ax.grid(False)
 
     if show_legend:

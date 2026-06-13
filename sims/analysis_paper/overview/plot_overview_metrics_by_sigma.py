@@ -12,7 +12,7 @@ Example:
     python3 ./plot_overview_metrics_by_sigma.py \
         --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
         --sigmas 0.005 0.01 0.04 0.06 0.08 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.9 1.0 \
-        --output overview_metrics_ver1.pdf
+        --output overview.png
 """
 
 from __future__ import annotations
@@ -238,7 +238,7 @@ def main() -> int:
         color="#d62728",
         marker="o",
         linewidth=2.0,
-        label=f"Mean Fitness ({args.window_start}-{args.window_end})",
+        label=r"Generation average of population mean $\bar{F}$",
     )
     ax_mean_worst.plot(
         x_positions,
@@ -247,7 +247,7 @@ def main() -> int:
         marker="s",
         linestyle="--",
         linewidth=2.0,
-        label=f"Worst Fitness ({args.window_start}-{args.window_end})",
+        label=r"Generation average of population worst $\bar{F}$",
     )
 
     ax_speed.plot(
@@ -257,7 +257,7 @@ def main() -> int:
         marker="^",
         linestyle=":",
         linewidth=2.0,
-        label=f"1 / first generation reaching F=0",
+        label=r"1 / $g_{first}$",
     )
 
     ax_speed.set_xticks(x_positions)
@@ -269,9 +269,9 @@ def main() -> int:
     ax_speed.axhline(0.0, color="black", linewidth=0.8, linestyle="--", alpha=0.5)
 
     # ax_mean_worst.set_title(args.title)
-    ax_mean_worst.set_ylabel("Fitness averaged over generations 100–200")
-    ax_speed.set_xlabel("noise strength σ")
-    ax_speed.set_ylabel("1 / first generation reaching F=0")
+    ax_mean_worst.set_ylabel(r"$\bar{F}$ statistics,generations 100-200",fontsize=15)
+    ax_speed.set_xlabel("noise strength σ",fontsize=15)
+    ax_speed.set_ylabel(r"1 / $g_{first}$",fontsize=15)
     ax_speed.set_ylim(-0.005, 0.13)
 
     ax_mean_worst.grid(True, which="both", alpha=0.25)
