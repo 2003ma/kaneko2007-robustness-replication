@@ -11,7 +11,7 @@
 // デフォルトパラメータ
 void set_default_params(Params *p)
 {
-    p->sigma = 2.0;
+    p->sigma = 0.2;
     p->N = 64;
     p->k = 8;
     p->pop = 300;
@@ -19,7 +19,7 @@ void set_default_params(Params *p)
     p->beta = 7.0;
     p->dt = 0.005;
     p->relax = 80 / 0.005;
-    p->meas = 10 / 0.005;
+    p->meas = 30 / 0.005;
     p->L = 300;
     p->pedge = 0.5;
     p->elit = 0.25;
