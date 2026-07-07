@@ -997,7 +997,7 @@ void run_kaneko_robustness_simulation(const Params *prm_in)
             {
                 tb_ensure(tb, pop[i].N);
                 RNG rng = thread_rng[tid];
-                rng.state ^= splitmix32((uint32_t)(current_gen * 2654435761u + i)); //元のrngをさらに、世代と個体番号で変化させる
+                rng.state ^= splitmix32((uint32_t)(current_gen * 2654435761u + i)); //元のrngをさらに、世代と個体番号で変化させる( 2654435761u をかけることでビットが単調にならないようにしている)
 
                 double vip, fit;
                 evaluate_fitness_buf(&pop[i], outputs, prm.k, prm.beta, prm.sigma, prm.dt, // ここのkがj>=kの入力を受け取る
