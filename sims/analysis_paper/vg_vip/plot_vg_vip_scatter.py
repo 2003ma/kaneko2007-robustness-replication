@@ -223,12 +223,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     line_max = min(x_max, y_max)
     ax.plot([line_min, line_max], [line_min, line_max], color="black", linestyle="--", linewidth=1.0, alpha=1.0,label=r"$V_g = V_{ip}$",)
 
+
     ax.set_xlabel(r"$V_{ip}$",fontsize=20)
     ax.set_ylabel(r"$V_g$",fontsize=20)
     ax.grid(True, which="both", alpha=0.2)
     ax.tick_params(axis="both", which="major", labelsize=15)
     ax.tick_params(axis="both", which="minor", labelsize=15)
-    ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(1.02, 1.0),fontsize=15)
+    ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(1.02, 1.0),fontsize=15,title=r"Evolution noise $\sigma_{\mathrm{evo}}$")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()

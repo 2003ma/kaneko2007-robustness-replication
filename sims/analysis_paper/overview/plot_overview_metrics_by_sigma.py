@@ -221,12 +221,12 @@ def main() -> int:
         worst_values.append(worst_average)
         speed_values.append(speed)
 
-    fig, (ax_mean_worst, ax_speed) = plt.subplots(
+    fig, ( ax_speed,ax_mean_worst) = plt.subplots(
         2,
         1,
-        figsize=(9, 8.6),
+        figsize=(8.6,9.0),
         sharex=True,
-        gridspec_kw={"height_ratios": [1.45, 1.0]},
+        gridspec_kw={"height_ratios": [1.0,1.45]},
     )
 
     # sigma は値の間隔が不均一なので、見やすさのため等間隔の x 座標に配置する
@@ -272,7 +272,7 @@ def main() -> int:
     ax_mean_worst.set_ylabel(r"$\bar{F}$ statistics,generations 100-200",fontsize=15)
     ax_speed.set_xlabel("noise strength σ",fontsize=15)
     ax_speed.set_ylabel(r"1 / $g_{first}$",fontsize=15)
-    ax_speed.set_ylim(-0.005, 0.13)
+    ax_speed.set_ylim(-0.005, 0.12)
 
     ax_mean_worst.grid(True, which="both", alpha=0.25)
     ax_speed.grid(True, which="both", alpha=0.25)
