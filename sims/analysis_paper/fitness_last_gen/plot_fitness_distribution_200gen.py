@@ -13,7 +13,7 @@ Example:
         --csv-b ../../evo_sim/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
         --labels "sigma=0.200" "sigma=0.005" \
         --preset wide \
-        --output fitness_wide_v1.png
+        --output fitness_wide_v1.pdf
 """
 
 from __future__ import annotations
@@ -222,7 +222,7 @@ def decorate_axis(ax, xlim: Tuple[float, float], *, show_legend: bool = True) ->
     ax.set_yscale("symlog", linthresh=1)
     ax.set_ylim(bottom=0)
     ax.set_xlabel("Fitness",fontsize=15)
-    ax.set_ylabel("Distribution",fontsize=15)
+    ax.set_ylabel("Number of individuals",fontsize=15)
     ax.grid(False)
 
     if show_legend:
