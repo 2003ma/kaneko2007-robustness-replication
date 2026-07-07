@@ -47,6 +47,7 @@ typedef struct
 /**
  * XorShift32: 高速な疑似乱数生成アルゴリズム
  * ビット演算（XOR, シフト）だけで32ビット整数の乱数を生成
+ * 
  */
 static inline uint32_t xorshift32(RNG *r)
 {
@@ -972,7 +973,7 @@ void run_kaneko_robustness_simulation(const Params *prm_in)
     tb_pool = (ThreadBuf *)calloc((size_t)nthreads, sizeof(ThreadBuf));
     for (int t = 0; t < nthreads; ++t)
     {
-        uint32_t s = splitmix32(prm.seed ^ (uint32_t)t ^ 0xA5A5A5A5u);
+        uint32_t s = splitmix32(prm.seed ^ (uint32_t)t ^ 0xA5A5A5A5u); // スレッドごとに異なるシードを生成(散らす)
         rng_seed(&thread_rng[t], s);
         tb_pool[t].x = tb_pool[t].x_next = NULL;
         tb_pool[t].capN = 0;
@@ -997,7 +998,7 @@ void run_kaneko_robustness_simulation(const Params *prm_in)
             {
                 tb_ensure(tb, pop[i].N);
                 RNG rng = thread_rng[tid];
-                rng.state ^= splitmix32((uint32_t)(current_gen * 2654435761u + i));
+                rng.state ^= splitmix32((uint32_t)(current_gen * 2654435761u + i)); //元のrngをさらに、世代と個体番号で変化させる
 
                 double vip, fit;
                 evaluate_fitness_buf(&pop[i], outputs, prm.k, prm.beta, prm.sigma, prm.dt, // ここのkがj>=kの入力を受け取る
