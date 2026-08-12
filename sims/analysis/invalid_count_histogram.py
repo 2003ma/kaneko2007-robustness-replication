@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-"""
-invalid_count (!=0) のヒストグラムを作成するスクリプト
-
-Usage:
-    python3 invalid_count_histogram.py <stats_csv_path> [--output <output.png>]
-
-Example:
-    python3 invalid_count_histogram.py ../evo_sim/results/ver1/sigma_0.020/trials10000/t1=80_t2=90_trials10000_dt0.050_allJ/gen_200_all_individuals/stats/all_individuals_fitness_stats_sigma=0.020.csv
-"""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -75,13 +64,13 @@ def main():
         print(f"[ERROR] No invalid_count != 0 data found")
         return 1
 
-    # ヒストグラムと累積分布関数を作成
+    # create histogram and cumulative distribution function (CDF) plots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     
-    # binの範囲を設定（0から10000まで、bin_width刻み）
+    # set bins for histogram
     bins = np.arange(0, 10000 + args.bin_width, args.bin_width)
     
-    # 左側：ヒストグラム
+    # histogram for invalid_count != 0
     ax1.hist(data_nonzero, bins=bins, color='steelblue', alpha=0.7, edgecolor='black', linewidth=0.5)
     ax1.set_xlabel('invalid_count')
     ax1.set_ylabel('Frequency')
@@ -93,7 +82,7 @@ def main():
     ax1.set_title(title)
     ax1.grid(axis='y', alpha=0.3)
     
-    # 右側：累積分布関数
+    # cumulative distribution function (CDF) for invalid_count != 0
     sorted_data = np.sort(data_nonzero)
     cdf = np.arange(1, len(sorted_data) + 1) / len(sorted_data)
     
@@ -108,7 +97,7 @@ def main():
     ax2.grid(True, alpha=0.3)
     ax2.set_ylim([0, 1])
     
-    # 統計情報をテキストボックスで表示
+    # display statistics on the CDF plot
     stats_text = (
         f"Total individuals: {len(data)}\n"
         f"invalid_count == 0: {(data == 0).sum()}\n"
@@ -131,13 +120,11 @@ def main():
     
     plt.tight_layout()
     
-    # 保存
     plt.savefig(output_path, dpi=200)
     plt.close()
     
     print(f"[INFO] Saved histogram to: {output_path}")
     
-    # 統計情報を表示
     print(f"\n=== invalid_count (!=0) statistics ===")
     print(f"Total individuals: {len(data)}")
     print(f"invalid_count == 0: {(data == 0).sum()}")

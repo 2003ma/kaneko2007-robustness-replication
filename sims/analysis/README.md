@@ -1,6 +1,7 @@
 # Analysis Scripts
 
 This directory contains utility scripts for visualizing simulation statistics from the evolutionary simulation results.
+Created statistics is used in TABLE 2.
 
 ## Scripts
 
@@ -11,7 +12,7 @@ Generates a histogram of invalid fitness counts (constraints violations).
 
 **Usage:**
 ```bash
-python3 invalid_count_histogram.py <path_to_stats_csv> [--output output.png] [--bin_width 50]
+python3 invalid_count_histogram.py <path_to_stats_csv> [--output output.png] [--bin_width 10]
 ```
 
 **Arguments:**
@@ -21,7 +22,7 @@ python3 invalid_count_histogram.py <path_to_stats_csv> [--output output.png] [--
 
 **Example:**
 ```bash
-python3 invalid_count_histogram.py ../evo_sim/results/ver1/sigma_0.020/trials10000/.../stats/all_individuals_fitness_stats_sigma=0.020.csv
+python3 invalid_count_histogram.py ../evo_sim/results/ver1/sigma_0.020/trials10000/t1=80_t2=90_trials10000_dt0.050_allJ/gen_200_all_individuals/stats/all_individuals_fitness_stats_sigma=0.020.csv
 ```
 
 **Output:** Histogram + cumulative distribution function of invalid_count values
