@@ -9,4 +9,4 @@ from plot_vg_vip_scatter import main
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(["--preset", "wide", "--output", "vip_vg.pdf"] + __import__("sys").argv[1:]))
+    raise SystemExit(main(["--preset", "wide", "--output", "vip_vg.png"] + __import__("sys").argv[1:]))

@@ -41,15 +41,16 @@ The CSV files in the `fitness/` directory are copied from the `allx/` directory 
 
 sims/evo_sim/results/ver1/sigma_0.040/trials10000/t1=80_t2=90_trials10000_dt0.050_allJ/gen_200_all_individuals/allx/
 Only the CSV files corresponding to ind=0 are placed in the fitness/ directory.
+
+**Corresponding diagram :**
+Figure 6.
 ---
 
 ### `fitness_last_gen/`
 Detailed fitness distribution analysis at the final generation (gen=200).
 
 **Scripts:**
-- `plot_fitness_distribution_200gen.py` — Compare two conditions (with preset ranges: wide/zoom)
-- `plot_fitness_distribution_200gen_wide.py` — Pre-configured wide x-axis view
-- `plot_fitness_distribution_200gen_zoom.py` — Pre-configured zoomed x-axis view
+- `plot_fitness_distribution_200gen.py`
 
 **Usage Example:**
 ```bash
@@ -57,9 +58,11 @@ python3 plot_fitness_distribution_200gen.py \
   --csv-a path/to/sigma_0.005_gen_200.csv \
   --csv-b path/to/sigma_0.200_gen_200.csv \
   --labels sigma=0.005 sigma=0.200 \
-  --preset wide \
-  --output fitness_dist_comparison.png
+  --output fitness_wide.pdf
 ```
+**Corresponding diagram :**
+Figure 3.
+
 
 ---
 
