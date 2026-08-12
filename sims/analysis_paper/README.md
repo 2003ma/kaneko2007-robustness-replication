@@ -15,9 +15,12 @@ Visualizes best and worst fitness trajectories across generations for multiple s
 ```bash
 python3 plot_best_by_sigma.py \
   --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
-  --sigmas 0.005 0.01 0.04 0.1 0.2 0.4 0.6 0.7 0.9 1.0 \
-  --output best_overlay.png
+  --sigmas 0.005 0.1 0.4 0.6 1.0\
+  --output best_fitness.pdf
 ```
+
+**Corresponding diagram :**
+Figure 1.
 
 ---
 
