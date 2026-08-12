@@ -2,18 +2,12 @@
 
 The script plots histogram counts of the `fitness` column for two CSV files.
 
-Presets:
-  - wide  : main plot over the full fitness range
-  - zoom  : main plot over [-0.2, 0]
-  - inset : wide plot with an inset zooming into [-0.2, 0]
-
 Example:
     python3 ./plot_fitness_distribution_200gen.py \
         --csv-a ../../evo_sim/results/ver1/sigma_0.200/evo_sim_data/gen_200_all_J_sigma_0.200_dt0.005.csv \
         --csv-b ../../evo_sim/results/ver1/sigma_0.005/evo_sim_data/gen_200_all_J_sigma_0.005_dt0.005.csv \
         --labels "sigma=0.200" "sigma=0.005" \
-        --preset wide \
-        --output fitness_wide_v1.pdf
+        --output fitness_wide.pdf
 """
 
 from __future__ import annotations
@@ -37,12 +31,6 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Legend labels for the two CSV files",
     )
     parser.add_argument(
-        "--preset",
-        choices=["wide", "zoom", "inset"],
-        default="wide",
-        help="Plot type: wide, zoom, or inset",
-    )
-    parser.add_argument(
         "--output",
         type=Path,
         default=Path("fitness_distribution_overlay.pdf"),
@@ -56,15 +44,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         type=float,
         default=None,
         metavar=("XMIN", "XMAX"),
-        help="Main panel x-range. If omitted, wide/inset use data range and zoom uses [-0.2, 0].",
-    )
-    parser.add_argument(
-        "--inset-xlim",
-        nargs=2,
-        type=float,
-        default=[-0.2, 0.0],
-        metavar=("XMIN", "XMAX"),
-        help="Inset x-range used only for --preset inset.",
+        help="Main panel x-range. If omitted, use the full data-driven range.",
     )
     parser.add_argument(
         "--color",
@@ -123,16 +103,12 @@ def setup_plot_style(plt) -> None:
 
 
 def resolve_xlim(
-    preset: str,
     fitness_a,
     fitness_b,
     xlim: Sequence[float] | None,
 ) -> Tuple[float, float]:
     if xlim is not None:
         return float(xlim[0]), float(xlim[1])
-
-    if preset == "zoom":
-        return -0.2, 0.0
 
     x_min = min(float(fitness_a.min()), float(fitness_b.min()))
     x_max = max(float(fitness_a.max()), float(fitness_b.max()))
@@ -300,7 +276,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("[ERROR] One of the CSV files has no valid fitness values.", file=sys.stderr)
         return 1
 
-    main_xlim = resolve_xlim(args.preset, fitness_a, fitness_b, args.xlim)
+    main_xlim = resolve_xlim(fitness_a, fitness_b, args.xlim)
     style_a, style_b = get_styles(args.color)
 
     fig, ax = plt.subplots(figsize=(10, 7))
@@ -320,43 +296,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         markersize=6.0,
     )
 
-    if args.preset == "inset":
-        inset_xlim = (float(args.inset_xlim[0]), float(args.inset_xlim[1]))
-
-        # [left, bottom, width, height] in axes fraction
-        axins = ax.inset_axes([0.18, 0.28, 0.52, 0.50])
-
-        plot_panel(
-            np,
-            axins,
-            fitness_a,
-            fitness_b,
-            inset_xlim,
-            args.bins,
-            args.labels,
-            style_a,
-            style_b,
-            show_legend=False,
-            linewidth=2.2,
-            markersize=6.0,
-        )
-
-        axins.tick_params(labelsize=18)
-        axins.xaxis.label.set_size(22)
-        axins.yaxis.label.set_size(22)
-
     args.output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.output, dpi=args.dpi, bbox_inches="tight")
     plt.close(fig)
 
     print(f"[OK] saved: {args.output}")
-    print(f"[OK] preset: {args.preset}")
     print(f"[OK] csv-a: {args.csv_a}")
     print(f"[OK] csv-b: {args.csv_b}")
-    print(f"[OK] main xlim: {main_xlim}")
-
-    if args.preset == "inset":
-        print(f"[OK] inset xlim: {tuple(args.inset_xlim)}")
+    print(f"[OK] wide xlim: {main_xlim}")
 
     return 0
 
