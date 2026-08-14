@@ -34,6 +34,7 @@ Fitness distribution analysis with random initial conditions.
 
 - CSV files in the `fitness/` subdirectory with the filename pattern:
   `trial_fitness_gen=200_ind=0_sigma=*_seed=...csv`
+- Move the individual you wish to analyze from the `allx` directory (within the corresponding `sigma` folder in `evo_sim/results/ver1/`) to the `fitness` directory.
 
 **Data preparation note:**
 
@@ -82,6 +83,9 @@ python3 plot_overview_metrics_by_sigma.py \
   --output overview_metrics.png
 ```
 
+**Corresponding diagram :**
+Figure 6.
+
 ---
 
 ### `under_noise_fitness/`
@@ -103,8 +107,6 @@ under_noise_fitness/evo_sigma_{evo_sigma}/sim_sigma_{start}_{end}_step_{step}/ge
 ```
 
 After generation, manually move the required CSV files directly under `under_noise_fitness/`, since the plotting script reads CSV files from that directory.
-
-**Plotting:**
 
 **Script:**
 
@@ -136,6 +138,8 @@ python3 plot_zero_fitness_ratio_vs_sim_sigma.py \
 
 The script automatically scans the CSV files and overlays lines for each `evo_sigma` value.
 
+**Corresponding diagram :**
+Figure 5.
 ---
 
 ### `vg_vip/`
@@ -143,15 +147,12 @@ Scatter plots of variability metrics (V_g vs Vip, potentially related to Lyapuno
 
 **Scripts:**
 - `plot_vg_vip_scatter.py` — Scatter plot with standard preset
-- `plot_vg_vip_scatter_wide.py` — Wide axis range preset
-- `plot_vg_vip_scatter_paper.py` — Paper-optimized preset (x: 1e-4 to 1e-1, y: 1e-6 to 1e-1)
 
 **Usage:**
 ```bash
-python3 plot_vg_vip_scatter_paper.py \
+python3 ./plot_vg_vip_scatter.py \
   --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
-  --sigmas 0.005 0.01 0.04 0.1 0.2 0.4 0.6 \
-  --output vg_vip_scatter_paper.png
+  --sigmas 0.01 0.04 0.1 0.2 0.3 0.5
 ```
 
 ---
@@ -166,12 +167,6 @@ data_sigma_only/ver1/
 └── ... (other sigma values)
 ```
 
-## Common Arguments
-
-- `--input-dir` — Root directory containing sigma subdirectories
-- `--sigmas` — Space-separated list of sigma values to analyze
-- `--output` — Output PNG filename
-- `--preset` — Plot axis range preset (varies by script: wide, zoom, paper)
 
 ## Dependencies
 
