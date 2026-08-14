@@ -1,13 +1,6 @@
-# --- Compiler selection ---
 CC = clang    
-# --- CPU 最適化設定（Apple / Intel 共通で最強） ---
 CPUFLAGS = -mcpu=native
 
-# --- OpenMP 強制フル稼働 ---
-export OMP_NUM_THREADS=20
-export OMP_DYNAMIC=FALSE
-export OMP_PROC_BIND=TRUE
-export OMP_PLACES=cores
 
 # --- Base C flags ---
 CFLAGS = -O3 $(CPUFLAGS) \

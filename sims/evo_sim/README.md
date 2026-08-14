@@ -4,13 +4,6 @@ This directory contains the C implementation of the evolutionary simulation of g
 
 The code simulates stochastic gene expression dynamics, applies mutation and selection to regulatory matrices \(J\), and saves evolved networks and related simulation outputs.
 
-## Overview
-
-This simulation is based on the evolutionary gene regulatory network model proposed by Kaneko (2007).
-
-In this model, the regulatory matrix \(J\) is treated as the genotype. Gene expression dynamics are simulated under stochastic noise, and fitness is evaluated from the resulting expression pattern. Mutation and selection are then applied repeatedly to evolve a population of regulatory networks.
-
-This code was used as part of a replication study of Kaneko (2007). It is a research script rather than a general-purpose software package.
 
 ## Directory structure
 
@@ -66,7 +59,6 @@ Each `sigma_xxx/` directory contains the main evolutionary simulation outputs in
 ```text
 results/
 └── ver1/
-    ├── README.md
     ├── params.txt
     ├── sigma_0.005/
     │   ├── evo_sim_data/
@@ -89,7 +81,8 @@ results/
     └── ...
 ```
 
-The file `results/ver1/params.txt` records parameter settings used for the simulations.
+The file `results/ver1/params.txt` records parameter settings used for the simulations. 
+If different parameters are used, ver2, ver3, etc., are automatically generated.
 
 ## Reduced data directory
 
@@ -99,10 +92,3 @@ It contains only selected `data,sigma=...` CSV files while preserving the direct
 
 See `results/data_sigma_only/README.md` for details.
 
-## Notes on implementation
-
-This code is a research script rather than a general-purpose software package.
-
-The implementation was written to reproduce and analyze the main qualitative behavior of the model. Some parameters and file paths may be specified directly in the source code or Makefile.
-
-Because the simulation includes stochastic dynamics, results may depend on random seeds and parameter settings.
