@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-
-"""Scatter plot of V_g vs Vip from data,sigma*.csv files.
-
-The plot overlays selected sigma conditions with one color per sigma.
-The x-axis is Vip and the y-axis is V_g.
-
-Presets:
-  - paper:  x in [1e-4, 1e-1], y in [1e-6, 1e-1]
-  - wide:   x in [1e-4, 1e1],  y in [1e-6, 1e0]
+"""
+python3 ./plot_vg_vip_scatter.py \
+  --input-dir ../../evo_sim/results/data_sigma_only/ver1 \
+  --sigmas 0.01 0.04 0.1 0.2 0.3 0.5
 """
 
 from __future__ import annotations
@@ -37,15 +32,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Sigmas to plot. If omitted, all are used.",
     )
     parser.add_argument(
-        "--preset",
-        choices=["paper", "wide"],
-        default="paper",
-        help="Axis range preset",
-    )
-    parser.add_argument(
         "--output",
         type=Path,
-        default=Path("vg_vip_scatter.pdf"),
+        default=Path("vg_vip.png"),
         help="Output image path",
     )
     parser.add_argument(
@@ -122,9 +111,9 @@ def resolve_axis_limits(
     kind: str,
 ) -> Tuple[float, float]:
     if kind == "x":
-        base_min, base_max = (1e-3, 1e-1) if preset == "paper" else (1e-3, 1e1)
+        base_min, base_max = (1e-3, 1e1)
     else:
-        base_min, base_max = (1e-5, 1e-1) if preset == "paper" else (1e-5, 1e0)
+        base_min, base_max = (1e-5, 1e0)
 
     if override_min is not None:
         base_min = override_min
@@ -214,8 +203,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             marker=marker_for_sigma(sigma),
         )
 
-    x_min, x_max = resolve_axis_limits(args.preset, args.xlim_min, args.xlim_max, "x")
-    y_min, y_max = resolve_axis_limits(args.preset, args.ylim_min, args.ylim_max, "y")
+    x_min, x_max = resolve_axis_limits("wide", args.xlim_min, args.xlim_max, "x")
+    y_min, y_max = resolve_axis_limits("wide", args.ylim_min, args.ylim_max, "y")
     ax.set_xlim(x_min, x_max)
     ax.set_ylim(y_min, y_max)
 
@@ -238,7 +227,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     used_sigmas = ", ".join(f"{sigma:g}" for sigma, _ in selected)
     print(f"[OK] saved: {args.output}")
     print(f"[OK] sigmas plotted: {used_sigmas}")
-    print(f"[OK] preset: {args.preset}")
+    print("[OK] preset: wide")
     return 0
 
 
