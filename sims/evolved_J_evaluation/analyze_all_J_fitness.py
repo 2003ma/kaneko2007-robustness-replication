@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-全個体のtrial_fitness結果を集計して統計情報を出力するスクリプト
+Script that aggregates trial_fitness results for all individuals and outputs summary statistics.
 
 Usage:
     python3 analyze_all_J_fitness.py <trial_fitness_dir> [--output <output.csv>]
@@ -17,13 +17,13 @@ import re
 
 
 def extract_ind_from_filename(filename):
-    """ファイル名から個体番号を抽出"""
+    """Extract the individual number from the filename"""
     m = re.search(r'ind=(\d+)', filename)
     return int(m.group(1)) if m else None
 
 
 def analyze_individual_fitness(csv_path):
-    """1個体のCSVファイルからfitness統計情報を計算"""
+    """Compute fitness statistics from one individual's CSV file"""
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
@@ -40,11 +40,11 @@ def analyze_individual_fitness(csv_path):
         print(f"[WARN] Empty fitness data in {csv_path.name}")
         return None
 
-    # invalid: fitness != 0 and != -8 (収束しない)
-    # valid: fitness == 0 or == -8 (安定状態に収束)
+    # invalid: fitness != 0 and != -8 (does not converge)
+    # valid: fitness == 0 or == -8 (converges to a stable state)
     invalid_fitness = fitness[(fitness != 0) & (fitness != -8)]
 
-    # 0.1刻みでbinning
+    # Bin in steps of 0.1
     fitness_binned = np.round(fitness / 0.1) * 0.1
     invalid_fitness_binned = np.round(invalid_fitness / 0.1) * 0.1
 
@@ -64,7 +64,7 @@ def analyze_individual_fitness(csv_path):
         'q75': np.percentile(fitness, 75) if len(fitness) > 0 else np.nan,
     }
 
-    # invalid_fitness がある場合のみ計算
+    # Compute only when invalid_fitness exists
     if len(invalid_fitness) > 0:
         stats['invalid_mean'] = np.mean(invalid_fitness)
         stats['invalid_std'] = np.std(invalid_fitness) if len(invalid_fitness) > 1 else np.nan
@@ -113,7 +113,7 @@ def main():
 
     args = parser.parse_args()
 
-    # sigma値をパスから抽出
+    # Extract sigma value from the path
     trial_fitness_dir = Path(args.trial_fitness_dir)
     sigma = None
     m = re.search(r'sigma[_=]([\d.]+)', str(trial_fitness_dir))
@@ -124,14 +124,14 @@ def main():
         print(f"[ERROR] Directory not found: {trial_fitness_dir}")
         return 1
 
-    # trial_fitness_gen=XXX_ind=YYY_..._allx.csv のファイルを取得
+    # Collect trial_fitness_gen=XXX_ind=YYY_..._allx.csv files
     csv_files = sorted(list(trial_fitness_dir.glob("trial_fitness_gen=*_ind=*_allx.csv")))
 
     if not csv_files:
         print(f"[ERROR] No CSV files found in {trial_fitness_dir}")
         return 1
 
-    # start_ind以降、end_ind以下のファイルのみをフィルタ
+    # Filter files so that only start_ind and later, and up to end_ind, are included
     csv_files = [
         f for f in csv_files
         if extract_ind_from_filename(f.name) is not None
@@ -152,7 +152,7 @@ def main():
     end_str = f" to {args.end_ind}" if args.end_ind is not None else ""
     print(f"[INFO] Found {len(csv_files)} individual CSV files (ind >= {args.start_ind}{end_str})")
 
-    # 各個体の統計情報を収集
+    # Collect statistics for each individual
     results = []
     for csv_path in csv_files:
         ind = extract_ind_from_filename(csv_path.name)
@@ -175,17 +175,17 @@ def main():
         print("[ERROR] No valid individual statistics were generated.")
         return 1
 
-    # DataFrameに変換
+    # Convert to DataFrame
     df_results = pd.DataFrame(results)
 
-    # individual_id でソート
+    # Sort by individual_id
     df_results = df_results.sort_values('individual_id').reset_index(drop=True)
 
-    # sigma列を追加
+    # Add sigma column
     if sigma is not None:
         df_results['sigma'] = sigma
 
-    # カラムの順序を整理
+    # Reorder columns
     columns_order = [
         'individual_id',
         'sigma',
@@ -202,11 +202,11 @@ def main():
     columns_order = [col for col in columns_order if col in df_results.columns]
     df_results = df_results[columns_order]
 
-    # 統計量用のディレクトリを作成（allxの一個上の階層）
+    # Create directory for summary statistics (one level above allx)
     stats_dir = trial_fitness_dir.parent / 'stats_all'
     stats_dir.mkdir(exist_ok=True)
 
-    # 出力ファイル名を決定
+    # Determine output filename
     if args.output:
         output_path = Path(args.output)
     else:
@@ -215,21 +215,21 @@ def main():
         else:
             output_path = stats_dir / 'all_individuals_fitness_stats.csv'
 
-    # 既存のCSVがある場合はマージ
+    # Merge with existing CSV if present
     if output_path.exists() and args.start_ind > 0:
         print(f"[INFO] Loading existing CSV: {output_path}")
         df_existing = pd.read_csv(output_path)
-        # start_ind以降のデータを削除して新しいデータに置き換え
+        # Remove data from start_ind onward and replace it with new data
         df_existing = df_existing[df_existing['individual_id'] < args.start_ind]
         df_results = pd.concat([df_existing, df_results], ignore_index=True)
         df_results = df_results.sort_values('individual_id').reset_index(drop=True)
         print(f"[INFO] Merged with existing data (kept ind < {args.start_ind}, updated ind >= {args.start_ind})")
 
-    # 個体ごとの統計を保存
+    # Save per-individual statistics
     df_results.to_csv(output_path, index=False)
     print(f"[INFO] Saved per-individual statistics to: {output_path}")
 
-    # 全個体分の統計量を計算するためのDataFrame
+    # DataFrame for computing statistics across all individuals
     if output_path.exists():
         df_stats_all = pd.read_csv(output_path)
     else:
@@ -242,7 +242,7 @@ def main():
         'unique_invalid_fitness_binned_0.1'
     ]
 
-    # overall stats
+    # Overall stats
     overall_stats = {
         'metric': [],
         'mean': [],
@@ -267,7 +267,7 @@ def main():
                 overall_stats['q25'].append(np.percentile(values, 25))
                 overall_stats['q75'].append(np.percentile(values, 75))
 
-    # 追加カウント統計
+    # Additional count statistics
     num_invalid0 = (df_stats_all['invalid_ratio'] == 0).sum()
     num_invalid_1digit = ((df_stats_all['invalid_count'] > 0) & (df_stats_all['invalid_count'] < 10)).sum()
     num_invalid_2digit = ((df_stats_all['invalid_count'] >= 10) & (df_stats_all['invalid_count'] < 100)).sum()
@@ -309,7 +309,7 @@ def main():
     df_overall.to_csv(overall_output_path, index=False)
     print(f"[INFO] Saved overall statistics to: {overall_output_path}")
 
-    # summary表示
+    # Print summary
     print("\n=== Summary (per individual) ===")
     print(f"Invalid ratio range: {df_results['invalid_ratio'].min():.4f} - {df_results['invalid_ratio'].max():.4f}")
     print(f"Mean fitness range: {df_results['mean'].min():.4f} - {df_results['mean'].max():.4f}")

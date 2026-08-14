@@ -43,7 +43,7 @@ evolved_J_evaluation/
 
 Evaluates all individuals in an evolved population under **no simulation noise** (deterministic dynamics). Outputs fitness values for each individual from a specified generation.
 
-**Initial conditions**: Random initial gene expression state (different random seed per trial).
+**Initial conditions**: Random initial gene expression state.
 
 See [src/calc_all_J_x/](src/calc_all_J_x/) for details.
 

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "all_J_trial_eval_noise.h"
 
-/* 実行例:
+/* Example:
  *  ./bin/all_J_trial_eval_noise \
  *   --input ../../../evo_sim/results/ver1/sigma_0.005 --evo-sigma 0.005
  */

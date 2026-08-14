@@ -1,10 +1,10 @@
 # ----- Compiler -----
 CC = clang
 
-# ----- CPU最適化（Intel / Apple Silicon 共通に最強） -----
+# ----- CPU optimization (strong for both Intel and Apple Silicon) -----
 CPUFLAGS = -march=native
 
-# ----- OpenMP 強制20スレッド -----
+# ----- Force 20 OpenMP threads -----
 export OMP_NUM_THREADS=20
 export OMP_DYNAMIC=FALSE
 export OMP_PROC_BIND=TRUE

@@ -31,7 +31,7 @@ static void fill_x0_minus_one(double *x0, int N)
         x0[i] = -1.0;
 }
 
-// 計算時に入れるノイズを計算
+// Build the simulation-noise grid
 static int build_sigma_grid(const AllJTrialNoiseParams *p, double **sigmas_out, int *count_out)
 {
     if (p->sim_sigma_step <= 0.0 || p->sim_sigma_end < p->sim_sigma_start)

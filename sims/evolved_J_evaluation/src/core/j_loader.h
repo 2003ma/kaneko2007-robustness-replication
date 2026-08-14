@@ -2,12 +2,12 @@
 #define J_LOADER_H
 
 /* 
- * dir: best_J / worst_J があるディレクトリ（sigma_0.08 みたいな）
+ * dir: directory containing best_J / worst_J files (e.g. sigma_0.08)
  * file_type: "best" or "worst"
- * generation: -1 → 最終行、それ以外 → その gen の行
- * N_out: J のサイズ N（N×N）
+ * generation: -1 -> final row, otherwise -> the specified generation row
+ * N_out: size N of J (N×N)
  *
- * 戻り値: malloc された double *J (N*N), 失敗時 NULL
+ * Return value: malloc'ed double *J (N*N), or NULL on failure
  */
 double *load_J_from_dir(const char *dir,
                         const char *file_type,

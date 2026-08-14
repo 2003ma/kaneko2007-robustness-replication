@@ -4,11 +4,11 @@
 
 #include "all_J_trial_eval.h"
 
-/* 実行例:
+/* Example:
  * ./bin/all_J_trial_eval --input ../evo_sim/results/ver1/sigma_0.400 \
  */
 /*---------------------------------------
-  CLI パース
+    CLI parsing
 ----------------------------------------*/
 static void parse_args(int argc, char **argv, AllJTrialParams *p)
 {
@@ -20,10 +20,10 @@ static void parse_args(int argc, char **argv, AllJTrialParams *p)
     p->beta = 7.0;
     p->dt = 0.05;
     p->k_boundary = 8;
-    p->jemk = 1; /* デフォルトでj>=kを考慮 */
+    p->jemk = 1; /* Consider j>=k by default */
     p->seed = 12345;
-    p->sigma = 0.0;  /* デフォルト値 */
-    p->start_ind = 0; /* デフォルト0 */
+    p->sigma = 0.0;  /* Default value */
+    p->start_ind = 0; /* Default 0 */
 
     for (int i = 1; i < argc; i++)
     {
@@ -72,7 +72,7 @@ static void parse_args(int argc, char **argv, AllJTrialParams *p)
 }
 
 /*---------------------------------------
-  メイン関数
+    Main function
 ----------------------------------------*/
 int main(int argc, char **argv)
 {

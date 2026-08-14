@@ -29,7 +29,7 @@ static inline double splitmix_uniform(uint32_t *state) {
 }
 
 /*-------------------------
-  x0 生成
+    x0 generation
 -------------------------*/
 static void generate_x0(double *x0, int N, uint32_t seed, int trial_id)
 {
@@ -41,9 +41,9 @@ static void generate_x0(double *x0, int N, uint32_t seed, int trial_id)
 }
 
 /*-------------------------
-  fitness 計算 (1 trial)
-  x_mean: 遺伝子 0..N-1 の時間平均発現量 (t1〜t2 の区間)
-  rk4_integrate を呼び出してシミュレーションを行う
+    Fitness computation (1 trial)
+    x_mean: time-averaged gene expression levels for genes 0..N-1 (between t1 and t2)
+    Run the simulation by calling rk4_integrate
 -------------------------*/
 static double compute_fitness_single(
     const double *J, int N,
@@ -51,8 +51,8 @@ static double compute_fitness_single(
     double beta, double dt,
     int t1, int t2,
     const double *x0,
-    double *x_mean       /* 長さ N のバッファ（NULL なら計算しない） */
-, int jemk //0: 全ての j から入力, 1: j >= k_boundary のみから入力
+    double *x_mean       /* Buffer of length N (skip if NULL) */
+, int jemk // 0: input from all j, 1: input only from j >= k_boundary
 )
 {
     int total_steps = (int)floor((double)t2 / dt);
@@ -71,7 +71,7 @@ static double compute_fitness_single(
 
     double sum_on = 0.0;
 
-    /* 平均発現量用の一時バッファ */
+    /* Temporary buffer for mean expression levels */
     double *x_sum = NULL;
     if (x_mean != NULL) {
         x_sum = (double *)calloc((size_t)N, sizeof(double));
@@ -90,7 +90,7 @@ static double compute_fitness_single(
 
         sum_on += on;
 
-        /* 各遺伝子の値を積算（平均発現量用） */
+        /* Accumulate values of each gene (for mean expression levels) */
         if (x_sum != NULL) {
             for (int a = 0; a < N; a++) {
                 x_sum[a] += x[a];
@@ -100,9 +100,9 @@ static double compute_fitness_single(
 
     double mean_on = sum_on / (double)(measure_steps + 1);
 
-    /* 平均発現量を x_mean に書き出し */
+    /* Write mean expression levels to x_mean */
     if (x_sum != NULL) {
-        double inv_steps = 1.0 / (double)(measure_steps + 1);  //行った回数で割って1ステップあたりの平均を出す
+        double inv_steps = 1.0 / (double)(measure_steps + 1);  // Divide by the number of steps to obtain the per-step average
         for (int a = 0; a < N; a++) {
             x_mean[a] = x_sum[a] * inv_steps;
         }
@@ -115,37 +115,37 @@ static double compute_fitness_single(
 }
 
 /*-------------------------
-  gen_XXX_all_J*.csv から全J行列を読み込む
-  
-  returns: 個体数（population_size）
-           J_out: malloc された J行列配列（population_size × N × N）
-           N_out: 遺伝子数
+    Load all J matrices from gen_XXX_all_J*.csv
+
+    returns: number of individuals (population_size)
+                     J_out: malloc'ed J matrix array (population_size × N × N)
+                     N_out: number of genes
 -------------------------*/
 static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
 {
-    /* まず指定されたパスをそのまま試す */
+    /* First try the specified path as-is */
     FILE *fp = fopen(csv_path, "r");
     char actual_path[512];
     strncpy(actual_path, csv_path, sizeof(actual_path) - 1);
     
-    /* 失敗した場合、ワイルドカードでファイルを探す */
+    /* If that fails, search for the file using a wildcard */
     if (!fp) {
-        /* .csvを削除してワイルドカードパターンを作成 */
+        /* Remove .csv and build a wildcard pattern */
         char glob_pattern[512];
         strncpy(glob_pattern, csv_path, sizeof(glob_pattern) - 1);
         
-        /* 末尾の.csvを削除 */
+        /* Remove trailing .csv */
         char *csv_ext = strstr(glob_pattern, ".csv");
         if (csv_ext) {
             *csv_ext = '\0';
         }
         
-        /* *.csvを追加 */
+        /* Append *.csv */
         strncat(glob_pattern, "*.csv", sizeof(glob_pattern) - strlen(glob_pattern) - 1);
         
         glob_t globbuf;
         if (glob(glob_pattern, 0, NULL, &globbuf) == 0 && globbuf.gl_pathc > 0) {
-            /* 最初に見つかったファイルを使用 */
+            /* Use the first file found */
             fp = fopen(globbuf.gl_pathv[0], "r");
             if (fp) {
                 printf("[INFO] Found and using: %s\n", globbuf.gl_pathv[0]);
@@ -160,24 +160,24 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
         return 0;
     }
 
-    /* ヘッダー読み込み */
+    /* Read header */
     char header[65536];
     if (!fgets(header, sizeof(header), fp)) {
         fclose(fp);
         return 0;
     }
 
-    /* フォーマット判定: "fitness" が含まれているか確認 */
+    /* Detect format: check whether "fitness" is included */
     int skip_cols;
     if (strstr(header, "fitness")) {
-        /* evo_sim_v2形式: individual_id,fitness,v_ip,J_0_0,... */
+        /* evo_sim_v2 format: individual_id,fitness,v_ip,J_0_0,... */
         skip_cols = 3;
     } else {
-        /* evo_sim形式: individual_id,J0,J1,... */
+        /* evo_sim format: individual_id,J0,J1,... */
         skip_cols = 1;
     }
 
-    /* ヘッダーから列数を数えて N を求める */
+    /* Count columns from the header and determine N */
     int n_cols = 1;
     for (char *p = header; *p; p++) {
         if (*p == ',') n_cols++;
@@ -192,7 +192,7 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
     }
     *N_out = N;
 
-    /* 行数をカウント（個体数） */
+    /* Count rows (individuals) */
     int pop_size = 0;
     long pos = ftell(fp);
     while (fgets(header, sizeof(header), fp)) {
@@ -200,7 +200,7 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
     }
     fseek(fp, pos, SEEK_SET);
 
-    /* メモリ確保 */
+    /* Allocate memory */
     double *J_all = (double *)malloc(sizeof(double) * pop_size * N * N);
     if (!J_all) {
         fprintf(stderr, "[ERROR] malloc failed for J_all\n");
@@ -208,11 +208,11 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
         return 0;
     }
 
-    /* データ読み込み */
+    /* Load data */
     for (int ind = 0; ind < pop_size; ind++) {
-        /* 先頭列（individual_idなど）を読み飛ばし */
+        /* Skip leading columns (such as individual_id) */
         if (skip_cols == 3) {
-            /* evo_sim_v2形式: individual_id, fitness, v_ip */
+            /* evo_sim_v2 format: individual_id, fitness, v_ip */
             int id;
             double fitness, v_ip;
             if (fscanf(fp, "%d,%lf,%lf,", &id, &fitness, &v_ip) != 3) {
@@ -222,7 +222,7 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
                 return 0;
             }
         } else {
-            /* evo_sim形式: individual_id */
+            /* evo_sim format: individual_id */
             int id;
             if (fscanf(fp, "%d,", &id) != 1) {
                 fprintf(stderr, "[ERROR] fscanf failed at individual %d header (v1 format)\n", ind);
@@ -232,7 +232,7 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
             }
         }
         
-        /* J行列要素を読み込み */
+        /* Read J matrix elements */
         double *J = &J_all[ind * N * N];
         for (int i = 0; i < N * N; i++) {
             if (fscanf(fp, "%lf,", &J[i]) != 1) {
@@ -250,7 +250,7 @@ static int load_all_J_from_csv(const char *csv_path, double **J_out, int *N_out)
 }
 
 /*-------------------------
-  ディレクトリ作成
+    Directory creation
 -------------------------*/
 #ifdef _WIN32
 #include <direct.h>
@@ -265,11 +265,11 @@ static void ensure_dir(const char *path) {
 }
 
 /*-------------------------
-  メインロジック
+    Main logic
 -------------------------*/
 int run_all_J_trial_eval(const AllJTrialParams *p)
 {
-    /* ディレクトリ名からσ値を抽出 */
+    /* Extract the sigma value from the directory name */
     double dir_sigma = p->sigma;
     const char *sigma_str = strstr(p->input_dir, "sigma_");
     if (sigma_str) {
@@ -277,13 +277,13 @@ int run_all_J_trial_eval(const AllJTrialParams *p)
         printf("[INFO] Extracted sigma=%.3f from directory name\n", dir_sigma);
     }
 
-    /* gen_XXX_all_J.csv のパスを構築 */
+    /* Build the path to gen_XXX_all_J.csv */
     char csv_path[512];
     snprintf(csv_path, sizeof(csv_path),
              "%s/evo_sim_data/gen_%d_all_J_sigma_%.3f_dt0.005.csv",
              p->input_dir, p->generation, dir_sigma);
 
-    /* 全J行列を読み込み */
+    /* Load all J matrices */
     double *J_all = NULL;
     int N = 0;
     int pop_size = load_all_J_from_csv(csv_path, &J_all, &N);
@@ -300,7 +300,7 @@ int run_all_J_trial_eval(const AllJTrialParams *p)
         return 1;
     }
 
-    /* 出力ディレクトリ構造 */
+    /* Output directory structure */
     char dir2[512];
     snprintf(dir2, sizeof(dir2), "%s/trials%d", p->input_dir, p->n_trials);
     ensure_dir(dir2);
@@ -311,7 +311,7 @@ int run_all_J_trial_eval(const AllJTrialParams *p)
              dir2, p->t1, p->t2, p->n_trials, p->dt);
     ensure_dir(dir3);
 
-    /* わかりやすいフォルダ名: gen_XXX_all_individuals */
+    /* Easy-to-read folder name: gen_XXX_all_individuals */
     char dir4[512];
     snprintf(dir4, sizeof(dir4), "%s/gen_%d_all_individuals", dir3, p->generation);
     ensure_dir(dir4);
@@ -320,11 +320,11 @@ int run_all_J_trial_eval(const AllJTrialParams *p)
     snprintf(dir5, sizeof(dir5), "%s/allx", dir4);
     ensure_dir(dir5);
 
-    /* 各個体ごとにCSVファイルを作成して trial 評価 */
+    /* Create a CSV file for each individual and perform trial evaluation */
     for (int ind = p->start_ind; ind < pop_size; ind++) {
         const double *J = &J_all[ind * N * N];
 
-        /* CSV 名（σを含める） */
+        /* CSV filename (includes sigma) */
         char csv[512];
         snprintf(csv, sizeof(csv),
                  "%s/trial_fitness_gen=%d_ind=%d_sigma=%.3f_seed=%d_trials=%d_dt%.3f_allx.csv",
@@ -336,14 +336,14 @@ int run_all_J_trial_eval(const AllJTrialParams *p)
             continue;
         }
 
-        /* ヘッダー */
+        /* Header */
         fprintf(fp, "trial_id,fitness");
         for (int i = 0; i < N; i++)
             fprintf(fp, ",x%d", i);
         fprintf(fp, "\n");
         fflush(fp);
 
-        /* trial結果を一時バッファに格納 */
+        /* Store trial results in temporary buffers */
         double *fitness_buf = malloc(sizeof(double) * p->n_trials);
         double *x0_buf = malloc(sizeof(double) * p->n_trials * N);
         double *xmean_buf = malloc(sizeof(double) * p->n_trials * N);
@@ -371,18 +371,18 @@ int run_all_J_trial_eval(const AllJTrialParams *p)
             fitness_buf[trial] = fit;
         }
 
-        /* trial_id昇順でCSV出力 */
+        /* Write CSV in ascending trial_id order */
         for (int trial = 0; trial < p->n_trials; trial++) {
             fprintf(fp, "%d,%.8f", trial, fitness_buf[trial]);
 
-            /* 平均発現量 x0..x(N-1) */
+            /* Mean expression values x0..x(N-1) */
             for (int i = 0; i < N; i++)
                 fprintf(fp, ",%.8f", xmean_buf[trial * N + i]);
 
             fprintf(fp, "\n");
         }
         
-        /* start_indの時のみ初期値を別途保存（全個体で初期値は同じことを確認するため） */
+        /* Save initial values separately only for start_ind (to confirm all individuals share the same initial values) */
         if (ind == p->start_ind) {
             char csv_x0[512];
             snprintf(csv_x0, sizeof(csv_x0),

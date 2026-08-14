@@ -6,24 +6,24 @@
 #include <math.h>
 
 /*-------------------------------------
-  best_J*.csv / worst_J*.csv を dir から探す
-  複数ある場合は配列で返す（番号降順でソート）
+    Search for best_J*.csv / worst_J*.csv in a directory
+    If multiple files exist, return them as an array (sorted by descending number)
 --------------------------------------*/
 static char **find_all_csv(const char *dir, const char *file_type, int *count_out)
 {
     DIR *dp = opendir(dir);
     if (!dp) return NULL;
 
-    static char *paths[10];  /* 最大10ファイル */
-    static int nums[10];     /* 各ファイルの番号 */
+    static char *paths[10];  /* Up to 10 files */
+    static int nums[10];     /* Number extracted from each file */
     int count = 0;
 
     struct dirent *e;
 
-    /* 例: best_J,sigma=...csv / worst_J,...csv を探す */
+    /* Example: search for best_J,sigma=...csv / worst_J,...csv */
     while ((e = readdir(dp)) && count < 10) {
         if (strstr(e->d_name, file_type) && strstr(e->d_name, "_J")) {
-            // (N)形式の番号を抽出
+            // Extract the number in (N) format
             int num = -1;
             char *paren = strstr(e->d_name, "(");
             if (paren) {
@@ -39,7 +39,7 @@ static char **find_all_csv(const char *dir, const char *file_type, int *count_ou
 
     closedir(dp);
     
-    /* 番号降順でソート（大きい番号から試す） */
+    /* Sort by descending number (try larger numbers first) */
     for (int i = 0; i < count - 1; i++) {
         for (int j = i + 1; j < count; j++) {
             if (nums[i] < nums[j]) {
@@ -59,7 +59,7 @@ static char **find_all_csv(const char *dir, const char *file_type, int *count_ou
 }
 
 /*-------------------------------------
-  CSV 読み込み
+    CSV loading
 --------------------------------------*/
 double *load_J_from_dir(const char *dir,
                         const char *file_type,
@@ -73,7 +73,7 @@ double *load_J_from_dir(const char *dir,
         return NULL;
     }
 
-    /* 複数のファイルを順番に試す（番号が大きいものから） */
+    /* Try multiple files in order (starting from larger numbers) */
     for (int file_idx = 0; file_idx < file_count; file_idx++) {
         char *path = paths[file_idx];
         printf("[INFO] Trying to load J from: %s\n", path);
@@ -86,7 +86,7 @@ double *load_J_from_dir(const char *dir,
 
         char line[65536];
 
-        /* ヘッダ行スキップ */
+        /* Skip header row */
         if (!fgets(line, sizeof(line), fp)) {
             fprintf(stderr, "[ERROR] Empty J file: %s\n", path);
             fclose(fp);
@@ -96,7 +96,7 @@ double *load_J_from_dir(const char *dir,
         char *target_line = NULL;
         int last_gen = -1;
 
-        /* 目的の generation を探す（-1 なら最終行） */
+        /* Search for the target generation (-1 means the last row) */
         while (fgets(line, sizeof(line), fp)) {
             char *tmp = strdup(line);
             char *tok = strtok(tmp, ",");
@@ -123,10 +123,10 @@ double *load_J_from_dir(const char *dir,
         if (!target_line) {
             fprintf(stderr, "[WARN] generation=%d not found in %s, trying next file...\n",
                     generation, path);
-            continue;  /* 次のファイルを試す */
+            continue;  /* Try the next file */
         }
 
-        /* generation カラムを除いた要素数を数える */
+        /* Count elements excluding the generation column */
         int count = 0;
         char *tmp = strdup(target_line);
         strtok(tmp, ","); /* generation skip */
@@ -150,7 +150,7 @@ double *load_J_from_dir(const char *dir,
             continue;
         }
 
-        /* 実際の値を読み込む */
+        /* Read the actual values */
         tmp = strdup(target_line);
         char *tok = strtok(tmp, ","); /* generation skip */
         (void)tok;
@@ -165,7 +165,7 @@ double *load_J_from_dir(const char *dir,
                 J = NULL;
                 break;
             }
-            J[i] = atof(v);  /* -1,0,1 のはずだが double にしておく */
+            J[i] = atof(v);  /* Should be -1, 0, or 1, but keep it as double */
         }
 
         free(tmp);
@@ -173,7 +173,7 @@ double *load_J_from_dir(const char *dir,
 
         if (J) {
             printf("[INFO] Loaded J from %s: N=%d\n", path, N);
-            /* メモリ解放 */
+            /* Free memory */
             for (int i = 0; i < file_count; i++) {
                 free(paths[i]);
             }
@@ -181,7 +181,7 @@ double *load_J_from_dir(const char *dir,
         }
     }
 
-    /* すべてのファイルで見つからなかった */
+    /* Not found in any file */
     fprintf(stderr, "[ERROR] generation=%d not found in any %s_J*.csv files\n",
             generation, file_type);
     for (int i = 0; i < file_count; i++) {

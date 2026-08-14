@@ -1,23 +1,23 @@
 #ifndef ALL_J_TRIAL_EVAL_H
 #define ALL_J_TRIAL_EVAL_H
 
-/* 全Jに対するtrial評価パラメータ */
+/* Trial evaluation parameters for all J */
 typedef struct {
-    const char *input_dir;   /* gen_XXX_all_J.csv があるディレクトリ */
-    int generation;          /* 世代番号 */
-    int n_trials;            /* 各Jあたりの試行回数 */
-    int t1;                  /* 測定開始時刻 */
-    int t2;                  /* 測定終了時刻 */
-    double beta;             /* ダイナミクスパラメータ */
-    double dt;               /* 時間刻み */
-    int k_boundary;          /* 階層境界 */
+    const char *input_dir;   /* Directory containing gen_XXX_all_J.csv */
+    int generation;          /* Generation number */
+    int n_trials;            /* Number of trials per J */
+    int t1;                  /* Measurement start time */
+    int t2;                  /* Measurement end time */
+    double beta;             /* Dynamics parameter */
+    double dt;               /* Time step */
+    int k_boundary;          /* Hierarchy boundary */
     int seed;                /* RNG seed */
-    double sigma;            /* 変異率σ */
-    int start_ind;           /* 個体開始インデックス（デフォルト0） */
-    int jemk;                /* ダイナミクスでj>=kを考慮するかどうか*/
+    double sigma;            /* Mutation rate sigma */
+    int start_ind;           /* Starting individual index (default 0) */
+    int jemk;                /* Whether to consider j>=k in dynamics */
 } AllJTrialParams;
 
-/* 実行関数 */
+/* Run function */
 int run_all_J_trial_eval(const AllJTrialParams *p);
 
 #endif /* ALL_J_TRIAL_EVAL_H */

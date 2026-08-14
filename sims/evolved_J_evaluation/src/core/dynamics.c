@@ -10,18 +10,18 @@
 #endif
 
 /*------------------------------------------------------------
- *  内部構造体: J ∈ {−1,0,1} 用のインデックス前計算
+ * Internal structure: precomputed indices for J ∈ {−1,0,1}
  *----------------------------------------------------------*/
 
 typedef struct {
     int N;
-    int *pos_count;   // 各行の +1 の数
-    int *neg_count;   // 各行の -1 の数
+    int *pos_count;   // Number of +1 entries in each row
+    int *neg_count;   // Number of -1 entries in each row
     int **pos_idx;    // pos_idx[i][k] = j (J_ij = +1)
     int **neg_idx;    // neg_idx[i][k] = j (J_ij = -1)
 } JIdx;
 
-/* J からインデックス構造体を生成（要 free） */
+/* Create an index structure from J (must be freed) */
 static JIdx *JIdx_create(const double *J, int N)
 {
     JIdx *idx = (JIdx *)malloc(sizeof(JIdx));
@@ -39,19 +39,19 @@ static JIdx *JIdx_create(const double *J, int N)
     }
 
     /*
-     * J は理想的には {-1, 0, +1}。
-     * 0.5 / -0.5 を境に 3 分類すると、
-     *   Jij >  0.5 -> +1 とみなす
-     *   Jij < -0.5 -> -1 とみなす
-     *   それ以外      -> 0 とみなす
-     * となり、+1/-1 判定を明確にしつつ丸め誤差にも強くなる。
+    * Ideally J contains {-1, 0, +1}.
+    * Using 0.5 / -0.5 thresholds yields three categories:
+    *   Jij >  0.5 -> treat as +1
+    *   Jij < -0.5 -> treat as -1
+    *   otherwise   -> treat as 0
+    * This makes +1/-1 classification explicit and robust to rounding errors.
      */
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             double Jij = J[i * N + j];
-            if (Jij > 0.5)         // +1 扱い
+            if (Jij > 0.5)         // treat as +1
                 idx->pos_count[i]++;
-            else if (Jij < -0.5)   // -1 扱い
+            else if (Jij < -0.5)   // treat as -1
                 idx->neg_count[i]++;
         }
     }
@@ -74,7 +74,7 @@ static JIdx *JIdx_create(const double *J, int N)
         idx->neg_idx[i] = nc > 0 ? (int *)malloc(sizeof(int) * nc) : NULL;
     }
 
-    /* 実際にインデックスを詰める */
+    /* Fill the indices */
     int *pc = (int *)calloc(N, sizeof(int));
     int *nc = (int *)calloc(N, sizeof(int));
     if (!pc || !nc) {
@@ -92,7 +92,7 @@ static JIdx *JIdx_create(const double *J, int N)
         return NULL;
     }
 
-    /* 各行 i について、+1 判定の j を pos_idx、-1 判定の j を neg_idx に詰める */
+    /* For each row i, store +1 columns in pos_idx and -1 columns in neg_idx */
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             double Jij = J[i * N + j];
@@ -110,7 +110,7 @@ static JIdx *JIdx_create(const double *J, int N)
     return idx;
 }
 
-/* JIdx 解放 */
+/* Free JIdx */
 static void JIdx_free(JIdx *idx)
 {
     if (!idx)
@@ -131,7 +131,7 @@ static void JIdx_free(JIdx *idx)
     free(idx);
 }
 
-/* h = Jx をインデックス構造を使って高速計算（OpenMP） */
+/* Compute h = Jx quickly using the index structure (OpenMP) */
 static void compute_h_fast(const JIdx *idx,
                            const double *x,
                            int k_boundary,
@@ -147,7 +147,7 @@ static void compute_h_fast(const JIdx *idx,
         int nc = idx->neg_count[i];
 
         if (jemk == 0) {
-            /* 全ての j から入力(基本的にjemk=1の方しか使わない) */
+            /* Input from all j (in practice, only jemk=1 is used) */
             for (int k = 0; k < pc; ++k) {
                 int j = idx->pos_idx[i][k];
                 hi += x[j];
@@ -157,7 +157,7 @@ static void compute_h_fast(const JIdx *idx,
                 hi -= x[j];
             }
         } else {
-            /* j >= k_boundary のみ */
+            /* Only j >= k_boundary */
             for (int k = 0; k < pc; ++k) {
                 int j = idx->pos_idx[i][k];
                 if (j >= k_boundary)
@@ -175,7 +175,7 @@ static void compute_h_fast(const JIdx *idx,
 }
 
 /*------------------------------------------------------------
- *  乱数: Box-Muller + Xorshift32
+ * Random numbers: Box-Muller + Xorshift32
  *----------------------------------------------------------*/
 
 double randn(unsigned int *state)
@@ -195,7 +195,7 @@ double randn(unsigned int *state)
 }
 
 /*------------------------------------------------------------
- *  Euler-Maruyama 法（高速版）
+ * Euler-Maruyama method (fast version)
  *----------------------------------------------------------*/
 
 void em_integrate(const double *J, int N, double beta, double sigma,
@@ -228,23 +228,23 @@ void em_integrate(const double *J, int N, double beta, double sigma,
     unsigned int rng = (unsigned int)seed;
 
     for (int t = 0; t <= steps; ++t) {
-        /* 出力 */
+        /* Output */
         memcpy(&X_out[t * N], x, sizeof(double) * N);
 
-        /* h = Jx を計算（OpenMP） */
+        /* Compute h = Jx (OpenMP) */
         compute_h_fast(idx, x, k_boundary, h, jemk);
 
-        /* dx/dt を計算 */
+        /* Compute dx/dt */
         for (int i = 0; i < N; ++i) {
             dxdt[i] = tanh(beta * h[i]) - x[i];
         }
 
-        /* 1ステップ前進 + ノイズ & クリップ */
+        /* Advance one step + noise & clipping */
         for (int i = 0; i < N; ++i) {
             double noise = sigma * sqrt(dt) * randn(&rng);
             x[i] += dt * dxdt[i] + noise;
 
-            // このクリップはあってもなくても変わらない
+            // This clipping does not materially change the result
             if (x[i] < -3.0)
                 x[i] = -3.0;
             if (x[i] > 3.0)
@@ -259,10 +259,10 @@ void em_integrate(const double *J, int N, double beta, double sigma,
 }
 
 /*------------------------------------------------------------
- *  4次 Runge-Kutta 法（高速版）
+ *  4th-order Runge-Kutta method (fast version)
  *----------------------------------------------------------*/
-// jemk=0: 全ての j から入力
-// jemk=1: j >= k_boundary のみから入力
+// jemk=0: input from all j
+// jemk=1: input only from j >= k_boundary
 void rk4_integrate(const double *J, int N, double beta,
                    double dt, double T, const double *x0,
                    int k_boundary, int jemk, double *X_out)
@@ -294,7 +294,7 @@ void rk4_integrate(const double *J, int N, double beta,
     memcpy(x, x0, sizeof(double) * N);
 
     for (int t = 0; t <= steps; ++t) {
-        /* 出力 */
+        /* Output */
         memcpy(&X_out[t * N], x, sizeof(double) * N);
 
         /* k1 = dt * f(x) */
@@ -323,7 +323,7 @@ void rk4_integrate(const double *J, int N, double beta,
         for (int i = 0; i < N; ++i)
             k4[i] = dt * (tanh(beta * h[i]) - xtmp[i]);
 
-        /* x ← x + (k1 + 2k2 + 2k3 + k4)/6 */
+        /* x <- x + (k1 + 2k2 + 2k3 + k4)/6 */
         for (int i = 0; i < N; ++i)
             x[i] += (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]) / 6.0;
     }
