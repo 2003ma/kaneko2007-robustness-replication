@@ -21,9 +21,9 @@ void set_default_params(Params *p)
     p->relax = 80 / 0.005;
     p->meas = 10 / 0.005;
     p->L = 300;
-    p->pedge = 0.5;
+    p->pedge = 0.5; // p_0 in the paper
     p->elit = 0.25;
-    p->mu = 1.00;
+    p->mu = 1.00; //n_m in the paper
     p->seed = 123456789u;
     // p->load_J_path = "results/ver1/sigma_0.500/evo_sim_data/gen_120_all_J_sigma_0.500_dt0.005.csv"; // Use this when resuming from a midway point.
     p->load_J_path = NULL;
