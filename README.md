@@ -1,7 +1,7 @@
 # kaneko2007-robustness-replication
 
-This repository contains code used in a replication study of the evolutionary gene regulatory network model proposed by Kaneko (2007).
-paper title:A Reexamination of Noise-Driven Robustness Evolution in Gene Regulatory Networks
+This repository contains code used in a replication study of the evolutionary gene regulatory network model proposed by Kaneko (2007).  
+paper title:A Reexamination of Noise-Driven Robustness Evolution in Gene Regulatory Networks. 
 url:https://arxiv.org/abs/2607.18645
 
 ## Original paper
