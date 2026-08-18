@@ -149,7 +149,7 @@ Figure 5.
 Scatter plots of V_g vs Vip.
 
 **Scripts:**
-- `plot_vg_vip_scatter.py` — Scatter plot with standard preset
+- `plot_vg_vip_scatter.py` 
 
 **Usage:**
 ```bash
@@ -162,9 +162,9 @@ python3 ./plot_vg_vip_scatter.py \
 
 ## Data Requirements
 
-Most scripts expect data from `sims/evo_sim/results/` in the structure:
+Most scripts expect data in the structure:
 ```
-data_sigma_only/ver1/
+sims/evo_sim/results/data_sigma_only/ver1/
 ├── sigma_0.005/evo_sim_data/data,sigma=0.0050,...csv
 ├── sigma_0.010/evo_sim_data/data,sigma=0.0100,...csv
 └── ... (other sigma values)
