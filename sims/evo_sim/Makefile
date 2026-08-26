@@ -1,5 +1,9 @@
 CC = clang    
 CPUFLAGS = -mcpu=native
+export OMP_NUM_THREADS=20
+export OMP_DYNAMIC=FALSE
+export OMP_PROC_BIND=TRUE
+export OMP_PLACES=cores
 
 
 # --- Base C flags ---
