@@ -179,28 +179,6 @@ individual_id,sigma,total_trials,invalid_count,invalid_ratio,unique_fitness,...,
 - The script automatically extracts the `sigma` value from the directory path using regex pattern matching.
 - File names must follow the pattern: `trial_fitness_gen=<gen>_ind=<id>_..._allx.csv`
 - If a sigma value cannot be extracted from the path, the `sigma` column will be omitted.
-- Processing progress is printed every 50 individuals.
-
-## Typical Workflow
-
-1. **Run evolutionary simulation** using `evo_sim` to generate evolved populations.
-
-2. **Evaluate individuals deterministically** (optional, for baseline comparison):
-   ```bash
-   cd src/calc_all_J_x && make && ./bin/all_J_trial_eval --input ...
-   ```
-
-3. **Evaluate individuals under noise**:
-   ```bash
-   cd src/calc_all_J_x_noise && make && ./bin/all_J_trial_eval_noise --input ... --evo-sigma ...
-   ```
-
-4. **Aggregate fitness statistics** using `analyze_all_J_fitness.py`:
-   ```bash
-   python3 analyze_all_J_fitness.py <path_to_trial_fitness_dir>
-   ```
-
-5. **Analyze results** using the aggregated statistics CSV for plotting, comparisons, etc.
 
 ## Notes
 
