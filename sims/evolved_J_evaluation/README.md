@@ -185,3 +185,6 @@ individual_id,sigma,total_trials,invalid_count,invalid_ratio,unique_fitness,...,
 - Both C programs use OpenMP for parallel evaluation. Adjust `OMP_NUM_THREADS` for your system.
 - The evaluation is memory-intensive due to storing all trial results. Consider evaluating subsets of individuals (using `--start_ind`/`--end_ind`) if memory is limited.
 - These scripts are research implementations; optimization and features may be added as needed.
+- CSV files are ignored globally by `.gitignore`, so generated CSV outputs are not intended to be committed.
+- The `archive` branch contains a slightly modified version of `evo_sim/src/` that was used to check whether changing the seed sampling strategy affects the results. It was not used in the paper.
+
